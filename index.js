@@ -36,11 +36,42 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/coffee/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const result = await coffeeCollection.findOne(filter);
+      res.send(result);
+    })
+
     app.post('/coffee', async (req, res) => {
       const newCoffee = req.body;
       console.log(newCoffee);
 
       const result = await coffeeCollection.insertOne(newCoffee);
+      res.send(result);
+    })
+
+    app.put('/coffee/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedCoffee = req.body;
+
+      const coffee = {
+        $set: {
+          name: updatedCoffee.name,
+          chef: updatedCoffee.chef,
+          supplier: updatedCoffee.supplier,
+          taste: updatedCoffee.taste,
+          category: updatedCoffee.category,
+          details: updatedCoffee.details,
+          photo: updatedCoffee.photo
+        }
+      }
+
+      const result = await coffeeCollection.updateOne(filter, coffee, options);
       res.send(result);
     })
 
@@ -64,9 +95,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send("Cofee Server is running");
+  res.send("Cofee Server is running");
 })
 
 app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
+  console.log(`Server is running on port: ${port}`);
 })
